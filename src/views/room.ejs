@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= page.title %></title>
+  </head>
+  <body>
+    <h4><a href="/">Về trang chủ</a></h4>
+    <h2><%= data.info.name %></h2>
+
+    <form class="sendMsg" style="
+      position: sticky;
+      border-radius: 10px;
+      background-color: gainsboro;
+      top: 10px;
+      padding: 10px;
+    ">
+      <label for="message_input">Nhắn tin: </label>
+      <input
+        name="message"
+        id="message_input"
+        type="text"
+        placeholder="Nhập tin nhắn"
+      />
+      <button type="submit" send_button">Gửi</button>
+    </form>
+
+    <ul class="messages">
+        <% data.messages.map((d) => { %>
+            <li><%= d.user.name %>: <%= d.message.content %></li>
+        <% }) %>
+    </ul>
+  </body>
+
+  <script type="module">
+    import { io } from "https://cdn.socket.io/4.3.2/socket.io.esm.min.js";
+
+    const socket = io("ws://localhost:12201", { transports : ['websocket'] });
+
+    const sendForm = document.querySelector("form[class=sendMsg]");
+    const message_input = document.querySelector("#message_input");
+    const messagesList = document.querySelector("ul[class=messages]");
+
+    const data = {
+      accessToken: "<%= userInfo.accessToken %>",
+      refreshToken: "<%= userInfo.refreshToken %>"
+    }
+
+    socket.emit("auth", (data));
+
+    socket.on("failed", (error) => {
+      let string = `Lỗi: ${error.error}. ${error.redirect ? `Bạn sẽ được chuyển hướng đến ${location.origin + error.redirect}` : ""}`
+    })
+
+    socket.on("announce", (data) => {
+        console.log(`[${data.user}] ${data.content}`)
+        messagesList.innerHTML += `<li><strong>Thông báo</strong>: ${data.content}</li>`
+    })
+
+    socket.on("message", (data) => {
+        messagesList.innerHTML += `<li>${data.user.name}: ${data.message.content}</li>`
+    })
+
+    sendForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!message_input)
+        return alert("DOM is changed! Please reload the page to continue.");
+    
+      const details = {
+        message: message_input.value,
+      };
+
+      var formBody = [];
+      for (var property in details) {
+        var encodedKey = encodeURIComponent(property);
+        var encodedValue = encodeURIComponent(details[property]);
+        formBody.push(encodedKey + "=" + encodedValue);
+      }
+      formBody = formBody.join("&");
+
+      fetch(`${location.origin}/api/messages/<%= data._id %>`, {
+        method: "POST",
+        headers: {
+          username: `<%= userInfo.username %>`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formBody,
+      })
+        .catch((res) => {
+            messagesList.innerHTML += `<li><strong>Lỗi</strong>: ${res}</li>`
+        })
+        .then((res) => res.json())
+        .then((data) => {
+            if(data.error) {
+                messagesList.innerHTML += `<li><strong>Lỗi</strong>: ${data.error}</li>`
+            }
+            message_input.value = "";
+            message_input.focus();
+        })
+    });
+  </script>
+</html>

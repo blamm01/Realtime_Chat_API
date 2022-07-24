@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= page.title %></title>
+  </head>
+  <body>
+    <% if(userInfo) { %>
+      <h2>Chào mừng <%= userInfo.username %>!</h2>
+      <p>Vào <a href="/rooms">chọn phòng</a> để chọn phòng</p>
+
+      <p>
+        Đang đăng nhập với tư cách: <%= userInfo.username %>. Không phải bạn?
+        <a href="/api/logout">Đăng xuất.</a>
+      </p>
+    <% } else { %>
+      <script>location.href = "/login"</script>
+    <% } %>
+  </body>
+</html>
