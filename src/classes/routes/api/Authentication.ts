@@ -1,9 +1,12 @@
 import { Request, Response } from "express";
 import crypto from "crypto";
 import mongo from "mongoose";
+import bcrypt from "bcrypt";
 
 import userSchema from "../../../models/users";
 import utils from "../../../utils";
+
+const saltRounds = 10;
 
 export default class Authentication {
     // [POST] /api/login
@@ -43,8 +46,15 @@ export default class Authentication {
             error: utils.getResponse("INVALID_FORM")
         })
 
-        var data = await userSchema.findOne({ username: username, password: password });
+        var data = await userSchema.findOne({ username: username });
         if (!data) return res.status(401).send({
+            error: utils.getResponse("INVALID_CREDENTIAL")
+        })
+
+        const hashPassword = typeof data.password == "string" ? data.password : "1"
+
+        const authorized = bcrypt.compareSync(password, hashPassword);
+        if(!authorized) return res.status(400).send({
             error: utils.getResponse("INVALID_CREDENTIAL")
         })
 
@@ -78,9 +88,11 @@ export default class Authentication {
         const accessToken = utils.randomToken(32);
         const refreshToken = utils.randomToken(36);
 
+        const hashedPassword: string = hashPassword(password).hash;
+
         data = new userSchema({
             username: username,
-            password: password,
+            password: hashedPassword,
             email: email,
             accessToken: accessToken,
             refreshToken: refreshToken
@@ -112,5 +124,15 @@ export default class Authentication {
         res.clearCookie("refreshToken");
         res.clearCookie("accessToken");
         res.redirect("/")
+    }
+}
+
+function hashPassword(password: string) {
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hash = bcrypt.hashSync(password, salt);
+
+    return {
+        password: password,
+        hash: hash
     }
 }
