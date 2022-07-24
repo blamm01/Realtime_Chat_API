@@ -25,12 +25,7 @@
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.3",
-<<<<<<< HEAD
-    "@types/express": "^4.17.13",
-    "@types/method-override": "^0.0.32"
-=======
     "@types/method-override": "^0.0.32",
     "@types/express": "^4.17.13"
->>>>>>> 8183e48427cc19018c04168860cf9d7599d45ef0
   }
 }
