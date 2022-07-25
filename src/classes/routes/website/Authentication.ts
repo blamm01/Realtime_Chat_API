@@ -53,7 +53,6 @@ export default class Authentication {
                     window.location.href = "/"
                 </script>
             `);
-        console.log(data);
         if (!data?.token) {
           try {
             res.redirect("/");

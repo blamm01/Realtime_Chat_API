@@ -21,7 +21,7 @@ export default class Authentication {
           })
         }
 
-        token = utils.randomToken(32);
+        token = utils.randomToken(36);
         data.token = token;
 
         await data.save();
@@ -47,7 +47,7 @@ export default class Authentication {
         error: utils.getResponse("INVALID_CREDENTIAL"),
       });
 
-    const hashPassword = typeof data.password == "string" ? data.password : "1";
+    const hashPassword = typeof data.password == "string" ? data.password : "";
 
     const authorized = bcrypt.compareSync(password, hashPassword);
     if (!authorized)
