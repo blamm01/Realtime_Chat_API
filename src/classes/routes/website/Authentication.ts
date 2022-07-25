@@ -39,6 +39,13 @@ export default class Authentication {
       })
       .then((response) => {
         const data = response?.data;
+        if (!data)
+          return `
+        <script>
+            alert("Có lỗi xảy ra! Vui lòng nhấn OK để chuyển hướng trang.");
+            window.location.href = "/"
+        </script>
+    `;
         if (data?.error)
           return res.send(`
                 <script>
@@ -46,7 +53,8 @@ export default class Authentication {
                     window.location.href = "/"
                 </script>
             `);
-        if (!data?.accessToken || !data?.refreshToken) {
+        console.log(data);
+        if (!data?.token) {
           try {
             res.redirect("/");
           } catch (err) {
@@ -54,8 +62,8 @@ export default class Authentication {
           }
           return;
         }
-        res.cookie("accessToken", data.accessToken);
-        res.cookie("refreshToken", data.refreshToken);
+
+        res.cookie("token", data.token);
         res.status(200).redirect("/");
       });
   }
@@ -90,23 +98,24 @@ export default class Authentication {
       })
       .then((response) => {
         const data = response?.data;
-        if (data?.error)
+        if (data?.error || !data)
           return res.send(`
                 <script>
-                    alert("Lỗi xảy ra: ${data.error}. Vui lòng nhấn OK để chuyển hướng trang.");
+                    alert("${
+                      typeof data?.error == "string"
+                        ? `Lỗi xảy ra: ${data?.error}`
+                        : "Có một lỗi không xác định đã xảy ra!"
+                    }. Vui lòng nhấn OK để chuyển hướng trang.");
                     window.location.href = "/"
                 </script>
             `);
-        if (!data?.accessToken || !data?.refreshToken) {
+        if (!data?.token) {
           try {
             res.redirect("/");
-          } catch (err) {
-            
-          }
+          } catch (err) {}
           return;
         }
-        res.cookie("accessToken", data.accessToken);
-        res.cookie("refreshToken", data.refreshToken);
+        res.cookie("token", data.token);
         res.status(200).redirect("/");
       });
   }
@@ -132,4 +141,4 @@ export default class Authentication {
       },
     });
   }
-};
+}

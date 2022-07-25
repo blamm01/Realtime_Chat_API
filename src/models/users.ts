@@ -1,8 +1,7 @@
 import mongo from "mongoose"
 
 export default mongo.model("users", new mongo.Schema({
-    refreshToken: String,
-    accessToken: String,
+    token: String,
     expires_in: {
         type: Number,
         default: 604800000

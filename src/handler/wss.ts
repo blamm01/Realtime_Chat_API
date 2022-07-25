@@ -7,8 +7,8 @@ import userSchema from "../models/users";
 
 ws.on("connection", async (socket) => {
     socket.on("auth", async (data) => {
-        const { refreshToken, accessToken } = data;
-        const userData = await userSchema.findOne({ refreshToken: refreshToken });
+        const { token } = data;
+        const userData = await userSchema.findOne({ token: token });
         
         if (!userData) return socket.emit("failed", {
             redirect: "/login",

@@ -44,8 +44,7 @@
     const messagesList = document.querySelector("ul[class=messages]");
 
     const data = {
-      accessToken: "<%= userInfo.accessToken %>",
-      refreshToken: "<%= userInfo.refreshToken %>"
+      token: "<%= userInfo.token %>",
     }
 
     socket.emit("auth", (data));
