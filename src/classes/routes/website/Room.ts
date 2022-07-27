@@ -124,8 +124,7 @@ export default class Room {
             data: room,
             userInfo: {
                 ...userInfo,
-                accessToken: req.cookies["accessToken"],
-                refreshToken: req.cookies["refreshToken"],
+                token: req.cookies["token"]
             },
             page: {
                 title: room?.info?.name,

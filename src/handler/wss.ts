@@ -19,23 +19,7 @@ ws.on("connection", async (socket) => {
         rooms = rooms.filter((r) => r.users.find(u => u.name == userData.username));
 
         rooms.map((r) => {
-            ws.in(r._id).emit("announce", {
-                user: "Console",
-                content: `${userData.username} đã trực tuyến!`
-            })
-        })
-
-        rooms.map((r) => {
             socket.join(r._id)
-        })
-
-        socket.on("disconnect", (reason) => {
-            rooms.map((r) => {
-                ws.in(r._id).emit("announce", {
-                    user: "Console",
-                    content: `${userData.username} đã ngoại tuyến!`
-                })
-            })
         })
     });
 })

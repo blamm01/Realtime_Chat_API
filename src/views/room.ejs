@@ -29,14 +29,18 @@
 
     <ul class="messages">
         <% data.messages.map((d) => { %>
-            <li><%= d.user.name %>: <%= d.message.content %></li>
+            <div class="message" style="display: flex; flex-direction: row">
+              <li style="margin-right: 10px"><%= d.user.name %>: <%= d.message.content %></li>
+              <% if(d.user.name == userInfo.username) { %>
+                <button class="deleteBtn" data-id="<%= d.message.id %>" onclick="deleteMessage(this)">Xóa</button>
+              <% } %>
+            </div>
         <% }) %>
     </ul>
   </body>
 
-  <script type="module">
-    import { io } from "https://cdn.socket.io/4.3.2/socket.io.esm.min.js";
-
+  <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
+  <script>
     const socket = io("ws://localhost:12201", { transports : ['websocket'] });
 
     const sendForm = document.querySelector("form[class=sendMsg]");
@@ -47,7 +51,11 @@
       token: "<%= userInfo.token %>",
     }
 
+    const username = "<%= userInfo.username %>"
+
     socket.emit("auth", (data));
+
+    socket.on("log", (string) => console.log(string))
 
     socket.on("failed", (error) => {
       let string = `Lỗi: ${error.error}. ${error.redirect ? `Bạn sẽ được chuyển hướng đến ${location.origin + error.redirect}` : ""}`
@@ -59,7 +67,17 @@
     })
 
     socket.on("message", (data) => {
-        messagesList.innerHTML += `<li>${data.user.name}: ${data.message.content}</li>`
+        let html = ""
+        if(data.user.name == username) html = `<div class="message">
+          <li>${data.user.name}: ${data.message.content}</li>
+          <button class="deleteBtn" data-id="${data.message.id}" onclick="deleteMessage(this)">Xoá</button>
+        </div>`
+        else {
+          html = `<div class="message">
+            <li>${data.user.name}: ${data.message.content}</li>
+           </div>`
+        }
+        messagesList.innerHTML += html
     })
 
     sendForm.addEventListener("submit", (event) => {
@@ -99,5 +117,26 @@
             message_input.focus();
         })
     });
+  
+    function deleteMessage(button) {
+      if(!button.dataset?.id) return alert("Lỗi! Vui lòng tải lại trang")
+      alert(`Đã nhận được yêu cầu xóa tin nhắn có ID ${button.dataset?.id}`)
+    }
   </script>
 </html>
+
+<style>
+  .message {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .message li {
+    margin-right: 10px;
+  }
+  
+  .message button {
+    margin-left: 50px;
+  }
+</style>

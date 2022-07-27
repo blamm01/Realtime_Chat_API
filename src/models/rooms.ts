@@ -3,6 +3,13 @@ import mongo from "mongoose"
 export default mongo.model("rooms", new mongo.Schema({
     _id: String,
     users: Array,
+
+    /* users: [
+        {
+            name: ""
+        }
+    ] */
+
     messages: Array,
     createdAt: {
         type: Number,

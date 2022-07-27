@@ -79,8 +79,7 @@ export default class Message {
     ) {
         const roomId = req.params["roomId"];
         const messageId = req.params["messageId"];
-    
-    
+        
         const userInfo = await utils.getUser(req, res, false);
         if (!userInfo) return res.status(401).send({
             error: utils.getResponse("NOT_LOGGED_IN")
